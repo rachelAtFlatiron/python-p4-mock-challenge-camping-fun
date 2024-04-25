@@ -25,5 +25,80 @@ db.init_app(app)
 def home():
     return ''
 
+'''
+{
+    id,
+    name,
+    age,
+    signups: {
+        id,
+        time,
+        camper: {
+            id,
+            name,
+            age,
+            signups: {
+                id, 
+                time, 
+                camper: {
+                    id, 
+                    name, 
+                    age,
+                    signups
+                }
+            }
+        },
+        activity: {
+            id,
+            name,
+            difficulty,
+            signups: {
+                id,
+                time,
+                camper,
+                activity: {
+                    id,
+                    name,
+                    difficulty,
+                    signups: {
+                        id,
+                        time,
+                        camper,
+                        activity
+                    }
+                }
+            }
+        }
+    }
+}
+
+'''
+@app.route('/campers')
+def all_campers():
+    q = Camper.query.all()
+    q_json = [camper.to_dict(rules=('-signups',)) for camper in q]
+    return make_response(q_json)
+
+@app.route('/campers/<int:camper_id>')
+def get_camper_by_id(camper_id):
+    q = Camper.query.filter_by(id=camper_id).first()
+    if not q:
+        return make_response({'message': 'not found'}, 404)
+    q_json = q.to_dict()
+    return make_response(q_json)
+
+@app.route('/activities')
+def all_activities():
+    q = Activity.query.all()
+    q_json = [activity.to_dict(rules=('-signups',)) for activity in q]
+    return make_response(q_json)
+
+@app.route('/signups')
+def all_signups():
+    q = Signup.query.all()
+    q_json = [signup.to_dict() for signup in q]
+    return make_response(q_json)
+
+
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
